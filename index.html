@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Iris Orbit — The Orbital Intelligence Operating System</title>
+<style>
+  :root{
+    --bg:#05080f; --bg2:#0a1022; --panel:#0e1626; --panel2:#121d33;
+    --line:rgba(120,160,220,.14);
+    --accent:#4f9eff; --glow:#86c5ff; --violet:#8b5cf6;
+    --green:#22c55e; --amber:#f59e0b; --red:#ef4444;
+    --text:#e7eefb; --muted:#8da0bd; --dim:#5d6f8c;
+    --mono:'SF Mono','Fira Code',ui-monospace,Menlo,Consolas,monospace;
+    --sans:'Inter',system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{
+    font-family:var(--sans);background:var(--bg);color:var(--text);
+    overflow-x:hidden;line-height:1.55;
+    background-image:
+      radial-gradient(1200px 600px at 80% -10%, rgba(79,158,255,.12), transparent 60%),
+      radial-gradient(900px 500px at 0% 20%, rgba(139,92,246,.10), transparent 55%);
+  }
+  /* starfield */
+  .stars,.stars2,.stars3{position:fixed;inset:0;z-index:0;pointer-events:none}
+  .stars{background-image:radial-gradient(1px 1px at 20px 30px,#fff,transparent),radial-gradient(1px 1px at 130px 80px,#cbd5ff,transparent),radial-gradient(1px 1px at 220px 50px,#fff,transparent),radial-gradient(1px 1px at 300px 140px,#9fb4ff,transparent),radial-gradient(2px 2px at 400px 90px,#fff,transparent);background-repeat:repeat;background-size:420px 240px;opacity:.5;animation:tw 6s ease-in-out infinite}
+  .stars2{background-image:radial-gradient(1px 1px at 60px 120px,#fff,transparent),radial-gradient(1px 1px at 180px 40px,#bcd,transparent),radial-gradient(1px 1px at 350px 180px,#fff,transparent);background-repeat:repeat;background-size:500px 300px;opacity:.35;animation:tw 9s ease-in-out infinite reverse}
+  .stars3{background-image:radial-gradient(2px 2px at 250px 220px,#dfe8ff,transparent),radial-gradient(1px 1px at 90px 200px,#fff,transparent);background-repeat:repeat;background-size:600px 400px;opacity:.25;animation:tw 12s ease-in-out infinite}
+  @keyframes tw{0%,100%{opacity:.45}50%{opacity:.18}}
+
+  .wrap{position:relative;z-index:2;max-width:1200px;margin:0 auto;padding:0 28px}
+  section{padding:96px 0;position:relative}
+  .eyebrow{font-family:var(--mono);font-size:12px;letter-spacing:4px;text-transform:uppercase;color:var(--accent);display:flex;align-items:center;gap:10px;margin-bottom:18px}
+  .eyebrow::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--accent);box-shadow:0 0 12px var(--accent)}
+  h1{font-size:clamp(40px,7vw,82px);font-weight:800;letter-spacing:-2px;line-height:1.02}
+  h2{font-size:clamp(28px,4vw,46px);font-weight:800;letter-spacing:-1px;margin-bottom:14px}
+  h2 .it{font-style:italic;font-weight:600;background:linear-gradient(100deg,var(--accent),var(--violet));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+  .lead{color:var(--muted);font-size:18px;max-width:720px}
+  .grad{background:linear-gradient(100deg,#fff 10%,var(--glow) 50%,var(--violet));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+
+  /* HERO */
+  .hero{min-height:100vh;display:flex;align-items:center;padding-top:80px}
+  .hero-grid{display:grid;grid-template-columns:1.1fr .9fr;gap:40px;align-items:center;width:100%}
+  .badge{display:inline-flex;align-items:center;gap:8px;font-family:var(--mono);font-size:12px;letter-spacing:2px;color:var(--glow);border:1px solid var(--line);background:rgba(79,158,255,.06);padding:7px 14px;border-radius:100px;margin-bottom:26px}
+  .hero p.lead{margin-top:22px;font-size:19px}
+  .cta-row{display:flex;gap:14px;margin-top:34px;flex-wrap:wrap}
+  .btn{font-family:var(--mono);font-size:14px;letter-spacing:1px;text-decoration:none;padding:14px 26px;border-radius:10px;font-weight:600;transition:.2s}
+  .btn.primary{background:linear-gradient(100deg,var(--accent),var(--violet));color:#fff;box-shadow:0 8px 30px rgba(79,158,255,.35)}
+  .btn.primary:hover{transform:translateY(-2px);box-shadow:0 12px 40px rgba(79,158,255,.5)}
+  .btn.ghost{border:1px solid var(--line);color:var(--text)}
+  .btn.ghost:hover{border-color:var(--accent);background:rgba(79,158,255,.06)}
+
+  /* SOLAR SYSTEM ANIM */
+  .solar{position:relative;aspect-ratio:1;max-width:460px;margin:0 auto;width:100%}
+  .core{position:absolute;top:50%;left:50%;width:74px;height:74px;transform:translate(-50%,-50%);border-radius:50%;
+    background:radial-gradient(circle at 35% 30%,#bcd8ff,#4f9eff 45%,#1a3a73);box-shadow:0 0 50px rgba(79,158,255,.7),0 0 120px rgba(79,158,255,.35);z-index:5;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-weight:700;font-size:11px;color:#04122b;letter-spacing:1px}
+  .orbit{position:absolute;top:50%;left:50%;border:1px dashed var(--line);border-radius:50%;transform:translate(-50%,-50%)}
+  .o1{width:46%;height:46%;animation:spin 9s linear infinite}
+  .o2{width:68%;height:68%;animation:spin 16s linear infinite reverse}
+  .o3{width:90%;height:90%;animation:spin 26s linear infinite}
+  .sat{position:absolute;top:-7px;left:calc(50% - 7px);width:14px;height:14px;border-radius:50%;background:var(--glow);box-shadow:0 0 14px var(--glow)}
+  .sat.v{background:var(--violet);box-shadow:0 0 14px var(--violet)}
+  .sat.g{background:var(--green);box-shadow:0 0 14px var(--green)}
+  .sat::after{content:"";position:absolute;inset:-6px;border-radius:50%;border:1px solid rgba(255,255,255,.18)}
+  @keyframes spin{to{transform:translate(-50%,-50%) rotate(360deg)}}
+
+  /* generic panels / grids */
+  .grid{display:grid;gap:20px}
+  .g3{grid-template-columns:repeat(3,1fr)}
+  .g4{grid-template-columns:repeat(4,1fr)}
+  .g2{grid-template-columns:repeat(2,1fr)}
+  .card{background:linear-gradient(180deg,var(--panel),var(--bg2));border:1px solid var(--line);border-radius:16px;padding:26px;position:relative;overflow:hidden;transition:.25s}
+  .card:hover{border-color:rgba(79,158,255,.4);transform:translateY(-4px)}
+  .card .ico{width:46px;height:46px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px;margin-bottom:16px;background:rgba(79,158,255,.12);border:1px solid var(--line)}
+  .card h3{font-size:19px;margin-bottom:8px}
+  .card p{color:var(--muted);font-size:15px}
+  .tag{font-family:var(--mono);font-size:11px;letter-spacing:2px;color:var(--dim);text-transform:uppercase}
+
+  /* stats */
+  .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:18px;margin-top:10px}
+  .stat{text-align:center;background:linear-gradient(180deg,var(--panel),var(--bg2));border:1px solid var(--line);border-radius:16px;padding:30px 16px}
+  .stat .num{font-size:clamp(30px,4vw,46px);font-weight:800;letter-spacing:-1px;background:linear-gradient(120deg,#fff,var(--glow));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+  .stat .lab{font-family:var(--mono);font-size:11px;letter-spacing:2px;color:var(--muted);text-transform:uppercase;margin-top:8px}
+
+  /* signal delay viz */
+  .delay-row{display:grid;grid-template-columns:120px 1fr 130px;align-items:center;gap:16px;padding:20px 0;border-bottom:1px solid var(--line)}
+  .node{display:flex;flex-direction:column;align-items:center;gap:6px;font-family:var(--mono);font-size:12px;color:var(--muted)}
+  .planet{width:40px;height:40px;border-radius:50%}
+  .p-earth{background:radial-gradient(circle at 35% 30%,#9fe0ff,#2a7fd0 50%,#0c3a6e)}
+  .p-moon{background:radial-gradient(circle at 35% 30%,#e8edf5,#9aa6b8 60%,#566)}
+  .p-mars{background:radial-gradient(circle at 35% 30%,#ffb38a,#e0612f 55%,#7a2a12)}
+  .track{position:relative;height:4px;background:linear-gradient(90deg,rgba(79,158,255,.35),rgba(139,92,246,.25));border-radius:4px}
+  .pulse{position:absolute;top:50%;left:0;width:12px;height:12px;border-radius:50%;background:var(--glow);box-shadow:0 0 14px var(--glow);transform:translate(-50%,-50%)}
+  .pulse.moon{animation:sig 2.6s linear infinite}
+  .pulse.mars{animation:sig 9s linear infinite}
+  .pulse.geo{animation:sig 1.1s linear infinite}
+  @keyframes sig{0%{left:0;opacity:0}8%{opacity:1}92%{opacity:1}100%{left:100%;opacity:0}}
+  .delay-val{font-family:var(--mono);text-align:right}
+  .delay-val b{font-size:20px;color:var(--text);display:block}
+  .delay-val span{font-size:11px;color:var(--dim);letter-spacing:1px}
+  .mode{display:inline-block;font-family:var(--mono);font-size:10px;letter-spacing:1px;padding:3px 8px;border-radius:6px;margin-top:6px}
+  .m-sync{background:rgba(34,197,94,.15);color:#7ee2a3}
+  .m-async{background:rgba(245,158,11,.15);color:#f6c36b}
+  .m-relay{background:rgba(139,92,246,.18);color:#bda6f7}
+
+  /* network resolver bars */
+  .net{display:flex;align-items:center;gap:14px;margin:12px 0}
+  .net .nm{width:200px;font-family:var(--mono);font-size:13px;color:var(--text)}
+  .net .bar{flex:1;height:30px;background:var(--panel);border:1px solid var(--line);border-radius:8px;overflow:hidden;position:relative}
+  .net .fill{height:100%;border-radius:7px;width:0;transition:width 1.4s cubic-bezier(.2,.8,.2,1)}
+  .net .pct{width:50px;text-align:right;font-family:var(--mono);font-size:12px;color:var(--muted)}
+  .net .note{font-family:var(--mono);font-size:11px;color:var(--dim);margin-left:6px}
+
+  /* weather window */
+  .ground{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:8px}
+  .gs{border:1px solid var(--line);border-radius:14px;padding:22px;text-align:center;background:var(--panel)}
+  .gs .sky{font-size:34px;margin-bottom:8px}
+  .gs.sel{border-color:var(--green);box-shadow:0 0 30px rgba(34,197,94,.25);background:linear-gradient(180deg,rgba(34,197,94,.08),var(--panel))}
+  .gs .risk{font-family:var(--mono);font-size:12px;color:var(--muted);margin-top:6px}
+  .gs .win{font-family:var(--mono);font-size:12px;color:#7ee2a3;margin-top:6px}
+  .gs.bad .win{color:var(--dim)}
+
+  /* charts: bars */
+  .chartbars{display:flex;align-items:flex-end;gap:26px;height:280px;padding:20px 0}
+  .cb{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%}
+  .cb .col{width:78%;border-radius:10px 10px 0 0;height:0;transition:height 1.4s cubic-bezier(.2,.8,.2,1);background:linear-gradient(180deg,var(--accent),rgba(79,158,255,.2));position:relative}
+  .cb .val{font-weight:800;font-size:20px;margin-bottom:8px}
+  .cb .yr{font-family:var(--mono);font-size:12px;color:var(--muted);margin-top:10px}
+
+  /* donut */
+  .donut-wrap{display:grid;grid-template-columns:300px 1fr;gap:40px;align-items:center}
+  .donut{width:260px;height:260px;border-radius:50%;margin:0 auto;position:relative;
+    background:conic-gradient(var(--accent) 0 40%,var(--green) 40% 70%,var(--amber) 70% 90%,var(--violet) 90% 100%)}
+  .donut::after{content:"";position:absolute;inset:30%;border-radius:50%;background:var(--bg)}
+  .donut .ctr{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:2}
+  .donut .ctr b{font-size:26px}.donut .ctr span{font-family:var(--mono);font-size:10px;color:var(--muted);letter-spacing:1px}
+  .legend li{list-style:none;display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--line);font-size:15px}
+  .legend .dot{width:13px;height:13px;border-radius:4px;flex-shrink:0}
+  .legend .v{margin-left:auto;font-family:var(--mono);color:var(--muted)}
+
+  /* ladder */
+  .ladder{display:grid;grid-template-columns:repeat(4,1fr);gap:0;margin-top:20px}
+  .rung{position:relative;padding:26px 20px;border:1px solid var(--line);border-right:none;background:var(--panel)}
+  .rung:last-child{border-right:1px solid var(--line);border-radius:0 14px 14px 0}
+  .rung:first-child{border-radius:14px 0 0 14px}
+  .rung .n{font-family:var(--mono);font-size:11px;color:var(--accent);letter-spacing:2px}
+  .rung h4{font-size:18px;margin:8px 0 4px}
+  .rung p{font-size:13px;color:var(--muted)}
+  .rung::after{content:"→";position:absolute;right:-11px;top:50%;transform:translateY(-50%);color:var(--accent);z-index:3;background:var(--bg);padding:2px;font-size:14px}
+  .rung:last-child::after{display:none}
+
+  /* moat code */
+  .codepanel{background:#070d18;border:1px solid var(--line);border-radius:14px;padding:24px;font-family:var(--mono);font-size:13.5px;line-height:1.9;overflow:auto}
+  .codepanel .c{color:var(--dim)}.codepanel .k{color:var(--accent)}.codepanel .g{color:#7ee2a3}.codepanel .a{color:var(--glow)}
+
+  /* CTA */
+  .cta-band{text-align:center;background:linear-gradient(160deg,rgba(79,158,255,.12),rgba(139,92,246,.10));border:1px solid var(--line);border-radius:24px;padding:70px 30px;position:relative;overflow:hidden}
+  .cta-band h2{font-size:clamp(30px,5vw,54px)}
+  .cta-band p{color:var(--muted);max-width:620px;margin:14px auto 0}
+
+  footer{padding:50px 0;text-align:center;color:var(--dim);font-family:var(--mono);font-size:12px;letter-spacing:1px;border-top:1px solid var(--line)}
+
+  /* reveal */
+  .reveal{opacity:0;transform:translateY(28px);transition:.7s cubic-bezier(.2,.8,.2,1)}
+  .reveal.in{opacity:1;transform:none}
+
+  @media(max-width:880px){
+    .hero-grid,.donut-wrap{grid-template-columns:1fr}
+    .g3,.g4,.stats,.ground,.ladder,.delay-row{grid-template-columns:1fr}
+    .delay-row{grid-template-columns:90px 1fr 110px}
+    .ladder{gap:14px}.rung{border-right:1px solid var(--line)!important;border-radius:14px!important}.rung::after{display:none}
+    .net .nm{width:120px}
+  }
+</style>
+</head>
+<body>
+<div class="stars"></div><div class="stars2"></div><div class="stars3"></div>
+
+<!-- HERO -->
+<section class="hero"><div class="wrap"><div class="hero-grid">
+  <div>
+    <div class="badge">◇ IRIS ORBIT — iOS</div>
+    <h1 class="grad">Mission control,<br>as software.</h1>
+    <p class="lead">The <b style="color:#fff">Orbital Intelligence Operating System</b> — a network-agnostic orchestration &amp; execution layer for satellites, lunar missions, and deep-space nodes. Navigation, physics-aware comms routing, hazard awareness, and weather-optimized delivery. Built on free NASA data and a 5-year-old production agent engine.</p>
+    <div class="cta-row">
+      <a class="btn primary" href="#cockpit">See the cockpit →</a>
+      <a class="btn ghost" href="#ask">The opportunity</a>
+    </div>
+  </div>
+  <div class="solar">
+    <div class="orbit o1"><span class="sat g"></span></div>
+    <div class="orbit o2"><span class="sat"></span></div>
+    <div class="orbit o3"><span class="sat v"></span></div>
+    <div class="core">IRIS</div>
+  </div>
+</div></div></section>
+
+<!-- PROBLEM -->
+<section><div class="wrap reveal">
+  <div class="eyebrow">The Problem</div>
+  <h2>Space has the hardware.<br><span class="it">It's missing the brain.</span></h2>
+  <p class="lead">15,000+ active satellites, a lunar gold rush, private deep-space missions — and every operator hand-rolls its own navigation and comms logic. There is no operating system for space operations.</p>
+  <div class="grid g4" style="margin-top:36px">
+    <div class="card"><div class="ico">🛰️</div><div class="tag">Access</div><h3>DSN is closed</h3><p>NASA's Deep Space Network is oversubscribed, ~5-month lead times, and effectively unavailable to private operators.</p></div>
+    <div class="card"><div class="ico">⏱️</div><div class="tag">Physics</div><h3>Light-delay</h3><p>Moon ~1.3s, Mars 3–22 min one-way. Real-time sessions are physically impossible.</p></div>
+    <div class="card"><div class="ico">🌑</div><div class="tag">Geometry</div><h3>Occlusion</h3><p>Far-side and behind-body nodes lose line-of-sight. You need relays, routed intelligently.</p></div>
+    <div class="card"><div class="ico">🧩</div><div class="tag">Tooling</div><h3>No OS</h3><p>Everyone rebuilds nav + comms from scratch. No shared orchestration layer exists.</p></div>
+  </div>
+</div></section>
+
+<!-- COCKPIT -->
+<section id="cockpit"><div class="wrap reveal">
+  <div class="eyebrow">The Product</div>
+  <h2>The cockpit — <span class="it">four instruments.</span></h2>
+  <p class="lead">Position, trajectory, hazards, and physics-aware comms. One orchestration layer, built on free NASA data, network-agnostic.</p>
+  <div class="grid g4" style="margin-top:36px">
+    <div class="card"><div class="ico">🧭</div><h3>Navigator</h3><p>Live position, trajectory &amp; closing-rate for any body or spacecraft.</p><p class="tag" style="margin-top:14px">NASA JPL HORIZONS</p></div>
+    <div class="card"><div class="ico">📡</div><h3>Comms Resolver</h3><p>Light-time + line-of-sight → strategy + a ranked list of the real networks.</p><p class="tag" style="margin-top:14px">MULTI-NETWORK</p></div>
+    <div class="card"><div class="ico">☄️</div><h3>Hazard Radar</h3><p>Asteroid close-approach tracking. Don't hit anything out there.</p><p class="tag" style="margin-top:14px">NASA CAD / SENTRY</p></div>
+    <div class="card"><div class="ico">🌦️</div><h3>Weather-Window</h3><p>Forecast each ground station's sky; schedule the laser downlink for a clear window.</p><p class="tag" style="margin-top:14px">THE EDGE</p></div>
+  </div>
+</div></section>
+
+<!-- SIGNAL DELAY -->
+<section><div class="wrap reveal">
+  <div class="eyebrow">Physics-Aware Comms</div>
+  <h2>Every link picks <span class="it">the right mode.</span></h2>
+  <p class="lead">Light-delay isn't a bug — it's the parameter that selects the dispatch mode. Watch a signal travel: near-Earth is instant, the Moon is interactive, Mars demands store-and-forward.</p>
+  <div style="margin-top:30px">
+    <div class="delay-row">
+      <div class="node"><div class="planet p-earth"></div>EARTH</div>
+      <div class="track"><span class="pulse geo"></span></div>
+      <div class="delay-val"><b>~0.1s</b><span>GEO RELAY</span><br><span class="mode m-sync">REALTIME RPC</span></div>
+    </div>
+    <div class="delay-row">
+      <div class="node"><div class="planet p-moon"></div>MOON</div>
+      <div class="track"><span class="pulse moon"></span></div>
+      <div class="delay-val"><b>~1.3s</b><span>ONE-WAY</span><br><span class="mode m-sync">NEAR-REALTIME</span></div>
+    </div>
+    <div class="delay-row">
+      <div class="node"><div class="planet p-mars"></div>MARS</div>
+      <div class="track"><span class="pulse mars"></span></div>
+      <div class="delay-val"><b>3–22m</b><span>ONE-WAY</span><br><span class="mode m-async">STORE &amp; FORWARD</span></div>
+    </div>
+    <div class="delay-row">
+      <div class="node"><div class="planet p-moon" style="opacity:.5"></div>FAR-SIDE</div>
+      <div class="track" style="background:repeating-linear-gradient(90deg,rgba(139,92,246,.4) 0 8px,transparent 8px 16px)"></div>
+      <div class="delay-val"><b>blocked</b><span>NO LINE OF SIGHT</span><br><span class="mode m-relay">RELAY REQUIRED</span></div>
+    </div>
+  </div>
+  <p class="lead" style="margin-top:24px;font-size:15px">This maps 1:1 to modes our <b style="color:#fff">V6 engine</b> already runs — instant chat vs stored async workflows you can close the laptop on and resume. <b style="color:#fff">We built the comms layer in 2020.</b></p>
+</div></section>
+
+<!-- NETWORK RESOLVER -->
+<section><div class="wrap reveal">
+  <div class="eyebrow">Multi-Network Resolver</div>
+  <h2>DSN is one option. <span class="it">Never the default.</span></h2>
+  <p class="lead">For a private deep-space node, Iris Orbit ranks every real network by eligibility, availability, and cost — and routes around the oversubscribed government pipe.</p>
+  <div style="margin-top:34px" id="netbars">
+    <div class="net"><div class="nm">Commercial Ground DTE</div><div class="bar"><div class="fill" style="background:linear-gradient(90deg,#22c55e,#16a34a)" data-w="92%"></div></div><div class="pct">92</div><div class="note">Goonhilly · KSAT · SSC</div></div>
+    <div class="net"><div class="nm">Optical Relay (Kepler)</div><div class="bar"><div class="fill" style="background:linear-gradient(90deg,#4f9eff,#2b6fd0)" data-w="84%"></div></div><div class="pct">84</div><div class="note">live Jan 2026</div></div>
+    <div class="net"><div class="nm">Lunar Relay</div><div class="bar"><div class="fill" style="background:linear-gradient(90deg,#8b5cf6,#6d3fd1)" data-w="78%"></div></div><div class="pct">78</div><div class="note">IM · ESA Pathfinder</div></div>
+    <div class="net"><div class="nm">Orchestrated Mesh</div><div class="bar"><div class="fill" style="background:linear-gradient(90deg,#f59e0b,#d97706)" data-w="70%"></div></div><div class="pct">70</div><div class="note">Aalyria Spacetime</div></div>
+    <div class="net"><div class="nm">NASA DSN</div><div class="bar"><div class="fill" style="background:linear-gradient(90deg,#64748b,#475569)" data-w="22%"></div></div><div class="pct">22</div><div class="note">ineligible · oversubscribed</div></div>
+  </div>
+</div></section>
+
+<!-- WEATHER WINDOW -->
+<section><div class="wrap reveal">
+  <div class="eyebrow">The Throughput Edge</div>
+  <h2>Smarter, <span class="it">not faster.</span></h2>
+  <p class="lead">Nobody beats the speed of light. But laser ground links die in clouds — so Iris Orbit forecasts each station's sky and sends through the clear one. Higher <i>effective</i> throughput. Never burn a pass through a storm.</p>
+  <div class="ground">
+    <div class="gs bad"><div class="sky">⛈️</div><div class="nm" style="font-family:var(--mono);font-size:13px">Station A</div><div class="risk">cloud risk 0.82</div><div class="win">— no window —</div></div>
+    <div class="gs sel"><div class="sky">☀️</div><div class="nm" style="font-family:var(--mono);font-size:13px">Station B ✓</div><div class="risk">cloud risk 0.08</div><div class="win">clear 03:00–05:00 UTC</div></div>
+    <div class="gs bad"><div class="sky">🌥️</div><div class="nm" style="font-family:var(--mono);font-size:13px">Station C</div><div class="risk">cloud risk 0.41</div><div class="win">marginal</div></div>
+  </div>
+  <p class="lead" style="margin-top:24px;font-size:15px;font-family:var(--mono);color:var(--green)">→ route via Station B, schedule downlink 03:00 UTC — 0 wasted passes.</p>
+</div></section>
+
+<!-- STATS -->
+<section><div class="wrap reveal">
+  <div class="eyebrow">By the Numbers</div>
+  <div class="stats">
+    <div class="stat"><div class="num" data-count="15000" data-suffix="+">0</div><div class="lab">Active Satellites</div></div>
+    <div class="stat"><div class="num">$1.8T</div><div class="lab">Space Econ by 2035</div></div>
+    <div class="stat"><div class="num" data-count="4">0</div><div class="lab">Cockpit Instruments</div></div>
+    <div class="stat"><div class="num">$0</div><div class="lab">Data COGS (NASA)</div></div>
+  </div>
+</div></section>
+
+<!-- MOAT -->
+<section><div class="wrap reveal">
+  <div class="eyebrow">The Moat</div>
+  <h2>A 5-year head start, <span class="it">hidden in plain sight.</span></h2>
+  <div class="grid g2" style="margin-top:30px;align-items:center">
+    <div>
+      <p class="lead" style="margin-bottom:18px">Our V6 async engine is store-and-forward orchestration — which <i>is</i> the deep-space comms standard (DTN Bundle Protocol v7). Iris Hive already dispatches jobs node-to-node across machines; a node on the Moon is architecturally identical. The physics is the blocker — never the software.</p>
+      <p class="lead" style="font-size:15px">We ride the standards (BPv7 · LunaNet · CCSDS) instead of reinventing them → instant interoperability, near-zero data cost.</p>
+    </div>
+    <div class="codepanel">
+<span class="c"># We built the comms layer in 2020</span>
+
+  <span class="k">V6 engine</span>   stored async sessions
+              <span class="g">= DTN Bundle Protocol v7</span>
+  <span class="k">Iris Hive</span>   node → node dispatch
+              <span class="g">= a Moon node, same code</span>
+  <span class="k">Standards</span>   ride BPv7 / LunaNet / CCSDS
+              <span class="a">(don't reinvent transport)</span>
+
+  <span class="g">Physics is the blocker. Not software.</span>
+    </div>
+  </div>
+</div></section>
+
+<!-- MARKET -->
+<section><div class="wrap reveal">
+  <div class="eyebrow">Market</div>
+  <h2>A trillion-dollar tide, <span class="it">no incumbent OS.</span></h2>
+  <div class="chartbars" id="bars">
+    <div class="cb"><div class="val">$600B</div><div class="col" data-h="33%" style="background:linear-gradient(180deg,#475569,rgba(71,85,105,.2))"></div><div class="yr">2024</div></div>
+    <div class="cb"><div class="val">$1.1T</div><div class="col" data-h="61%" style="background:linear-gradient(180deg,#4f9eff,rgba(79,158,255,.2))"></div><div class="yr">2030</div></div>
+    <div class="cb"><div class="val">$1.8T</div><div class="col" data-h="100%" style="background:linear-gradient(180deg,#86c5ff,rgba(134,197,255,.25))"></div><div class="yr">2035</div></div>
+  </div>
+  <p class="lead" style="font-size:15px">The comms / ground-software / mission-ops slice is the fastest-growing layer — and the one nobody owns.</p>
+</div></section>
+
+<!-- REVENUE -->
+<section><div class="wrap reveal">
+  <div class="eyebrow">Business Model</div>
+  <h2>Four revenue lines.</h2>
+  <div class="donut-wrap" style="margin-top:30px">
+    <div class="donut"><div class="ctr"><b>iOS</b><span>REVENUE MIX</span></div></div>
+    <ul class="legend">
+      <li><span class="dot" style="background:var(--accent)"></span> SaaS — per mission / node / pass <span class="v">40%</span></li>
+      <li><span class="dot" style="background:var(--green)"></span> Orchestration take-rate (routed bandwidth) <span class="v">30%</span></li>
+      <li><span class="dot" style="background:var(--amber)"></span> Intelligence subscriptions <span class="v">20%</span></li>
+      <li><span class="dot" style="background:var(--violet)"></span> Enterprise / portfolio deployments <span class="v">10%</span></li>
+    </ul>
+  </div>
+</div></section>
+
+<!-- WEDGE LADDER -->
+<section><div class="wrap reveal">
+  <div class="eyebrow">Go-to-Market</div>
+  <h2>The wedge ladder.</h2>
+  <div class="ladder">
+    <div class="rung"><div class="n">01</div><h4>Earth-Obs</h4><p>Revenue now — construction &amp; insurance intelligence on free NASA/Sentinel data.</p></div>
+    <div class="rung"><div class="n">02</div><h4>Iris Luna</h4><p>Credibility — a lunar agent demo on live NASA data. "These guys do space."</p></div>
+    <div class="rung"><div class="n">03</div><h4>Comms Resolver</h4><p>The category — become the orchestration brain on top of every pipe.</p></div>
+    <div class="rung"><div class="n">04</div><h4>Partner / M&amp;A</h4><p>Aalyria · Kepler · Intuitive Machines — partner to all, acquirable by any.</p></div>
+  </div>
+</div></section>
+
+<!-- PAYLOAD HOPPING -->
+<section><div class="wrap reveal">
+  <div class="eyebrow">The Hardware Wedge</div>
+  <h2>We don't launch rockets. <span class="it">We hop the payload.</span></h2>
+  <p class="lead">A launch is already going up. Our AI node rides it — software-first, hardware when it's cheap. Three models, all buyable today, no satellite to build.</p>
+  <div class="grid g3" style="margin-top:36px">
+    <div class="card"><div class="ico">🎒</div><div class="tag">Hosted Payload</div><h3>Ride a satellite</h3><p>Your AI module rides an existing commercial satellite as a passenger — the host provides power, pointing, thermal &amp; telemetry.</p><p class="tag" style="margin-top:14px">INTELSAT · BAE · THALES/SES</p></div>
+    <div class="card"><div class="ico">🚀</div><div class="tag">Rideshare</div><h3>Share the launch</h3><p>Your CubeSat or microsat flies on a dedicated rideshare flight — pay only for your mass/volume slot.</p><p class="tag" style="margin-top:14px">SPACEX TRANSPORTER · LOFT ORBITAL · MOMENTUS</p></div>
+    <div class="card"><div class="ico">🪝</div><div class="tag">Hitcher</div><h3>Cake-topper</h3><p>Your tiny node attaches to a primary mission as a minor payload — sensors, comms nodes, tech demos.</p><p class="tag" style="margin-top:14px">PIGGYBACK · BANDWAGON</p></div>
+  </div>
+  <p class="lead" style="margin-top:24px;font-size:15px;font-family:var(--mono);color:var(--glow)">→ node hops up on existing hardware · Iris Orbit orchestrates · data relays home</p>
+</div></section>
+
+<!-- CTA -->
+<section id="ask"><div class="wrap reveal">
+  <div class="cta-band">
+    <div class="solar" style="max-width:160px;opacity:.5;position:absolute;top:-40px;right:-20px">
+      <div class="orbit o2"><span class="sat"></span></div><div class="orbit o3"><span class="sat v"></span></div><div class="core" style="width:40px;height:40px;font-size:8px">IRIS</div>
+    </div>
+    <div class="eyebrow" style="justify-content:center">The Ask</div>
+    <h2 class="grad">We're not building rockets.</h2>
+    <p>We're building the operating system everything in space runs on. Capital to ship the cockpit, sign the first comms-network partner, and land the first private-mission customer.</p>
+    <div class="cta-row" style="justify-content:center;margin-top:30px">
+      <a class="btn primary" href="#">Let's build →</a>
+      <a class="btn ghost" href="#cockpit">Back to the cockpit</a>
+    </div>
+  </div>
+</div></section>
+
+<footer>IRIS ORBIT · The Orbital Intelligence Operating System · irisorbit.io · built on live NASA data</footer>
+
+<script>
+  // scroll reveal
+  const io=new IntersectionObserver((es)=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target)}}),{threshold:.15});
+  document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
+
+  // animate bars / donut / nets / counters when in view
+  function fire(sel,fn){const el=document.querySelector(sel);if(!el)return;const o=new IntersectionObserver((es)=>es.forEach(e=>{if(e.isIntersecting){fn();o.disconnect()}}),{threshold:.3});o.observe(el)}
+  fire('#netbars',()=>document.querySelectorAll('#netbars .fill').forEach(f=>f.style.width=f.dataset.w));
+  fire('#bars',()=>document.querySelectorAll('#bars .col').forEach(c=>c.style.height=c.dataset.h));
+  // counters
+  fire('.stats',()=>document.querySelectorAll('.num[data-count]').forEach(n=>{
+    const t=+n.dataset.count,suf=n.dataset.suffix||'';let s=0,step=t/60;
+    const iv=setInterval(()=>{s+=step;if(s>=t){s=t;clearInterval(iv)}n.textContent=Math.round(s).toLocaleString()+suf},16);
+  }));
+</script>
+</body>
+</html>
