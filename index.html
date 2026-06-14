@@ -412,22 +412,22 @@
   }
 </style>
 <section><div class="wrap reveal">
-  <div class="eyebrow">Mission Tour Planner</div>
-  <h2>We map the tour — <span class="it">through space.</span></h2>
-  <p class="lead">Hop on a payload, then chart its journey: every waypoint, every leg, with the comms mode pre-planned. An itinerary for a satellite — origin to orbit to relay to downlink, scored by the Navigator and routed by the Comms Resolver.</p>
+  <div class="eyebrow">Data Payload Tour</div>
+  <h2>We map the data's <span class="it">journey home.</span></h2>
+  <p class="lead">Not the spacecraft — the <b style="color:#fff">data</b>. Every byte gets a tour: from capture, through store-and-forward custody, relay hops, and a clear-sky downlink, all the way to your dashboard. Built on DTN Bundle Protocol + Contact Graph Routing, so the payload survives light-delay and blackouts and always arrives.</p>
   <div class="tour">
     <div class="tour-line"></div>
-    <div class="voyager">🛰️</div>
+    <div class="voyager">📦</div>
     <div class="tour-stops">
-      <div class="stop"><div class="dot">🚀</div><div class="lab">Launch</div><div class="sub">rideshare hop</div><span class="cm m-async">GROUND</span></div>
-      <div class="stop"><div class="dot">🛰️</div><div class="lab">LEO Park</div><div class="sub">checkout &amp; commissioning</div><span class="cm m-sync">REALTIME</span></div>
-      <div class="stop"><div class="dot">✦</div><div class="lab">TLI Burn</div><div class="sub">trans-lunar injection</div><span class="cm m-sync">NEAR-RT</span></div>
-      <div class="stop"><div class="dot">🌙</div><div class="lab">Lunar Orbit</div><div class="sub">LROC/LOLA survey</div><span class="cm m-sync">NEAR-RT</span></div>
-      <div class="stop"><div class="dot">🌑</div><div class="lab">Far-Side</div><div class="sub">no line of sight</div><span class="cm m-relay">RELAY</span></div>
-      <div class="stop"><div class="dot">📡</div><div class="lab">Downlink</div><div class="sub">weather window</div><span class="cm m-async">STORE+FWD</span></div>
+      <div class="stop"><div class="dot">📷</div><div class="lab">Capture</div><div class="sub">node records data</div><span class="cm m-async">CAPTURE</span></div>
+      <div class="stop"><div class="dot">🗄️</div><div class="lab">Bundle</div><div class="sub">store-and-forward custody</div><span class="cm m-async">DTN BPv7</span></div>
+      <div class="stop"><div class="dot">🔁</div><div class="lab">Relay Hop</div><div class="sub">line-of-sight blocked</div><span class="cm m-relay">RELAY</span></div>
+      <div class="stop"><div class="dot">⏳</div><div class="lab">Contact Window</div><div class="sub">wait for scheduled pass</div><span class="cm m-async">CGR ROUTE</span></div>
+      <div class="stop"><div class="dot">🔦</div><div class="lab">Downlink</div><div class="sub">clear-sky ground station</div><span class="cm m-sync">OPTICAL</span></div>
+      <div class="stop"><div class="dot">🧠</div><div class="lab">Iris Orbit</div><div class="sub">agent interprets → dashboard</div><span class="cm m-sync">DELIVERED</span></div>
     </div>
   </div>
-  <p class="lead" style="margin-top:30px;font-size:15px;font-family:var(--mono);color:var(--glow)">→ one tour, every leg pre-planned: trajectory · line-of-sight · comms mode · clear-sky downlink</p>
+  <p class="lead" style="margin-top:30px;font-size:15px;font-family:var(--mono);color:var(--glow)">→ one bundle, every hop pre-planned: custody · relay · contact window · clear-sky downlink · delivered</p>
 </div></section>
 
 <!-- CTA -->
